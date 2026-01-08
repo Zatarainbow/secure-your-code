@@ -51,7 +51,7 @@ const Hero = () => {
                 <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Button>
               <Button size="lg" variant="outline" className="gradient-border">
-                View Documentation
+                Xem hướng dẫn
               </Button>
             </div>
           </div>
