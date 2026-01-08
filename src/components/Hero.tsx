@@ -45,7 +45,7 @@ const Hero = () => {
             {/* CTA */}
             <div className="flex flex-wrap gap-4">
               <Button size="lg" className="bg-foreground text-background hover:bg-foreground/90 group">
-                Talk to an Expert
+                Bắt đầu Obfuscate
                 <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Button>
               <Button size="lg" variant="outline" className="gradient-border">
