@@ -2,10 +2,8 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import CreditCard from "./CreditCard";
 import MatrixRain from "./MatrixRain";
-
 const Hero = () => {
-  return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-32 pb-20">
+  return <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-32 pb-20">
       {/* Background effects */}
       <div className="absolute inset-0 animated-gradient" />
       <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-[128px]" />
@@ -21,15 +19,15 @@ const Hero = () => {
             {/* Badge */}
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border border-border/50 text-sm text-muted-foreground">
               <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
-              Global leaders trust us for payment security
+              The weapon of choice for Pythonistas worldwide.         
             </div>
 
             {/* Heading */}
             <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight">
-              <span className="gradient-text">Flexible</span>{" "}
-              <span className="text-foreground">Payments</span>
+              <span className="gradient-text">Obfuscator</span>{" "}
+              <span className="text-foreground">​Python</span>
               <br />
-              <span className="text-foreground">Security</span>
+              <span className="text-foreground">​</span>
             </h1>
 
             {/* Subheading */}
@@ -47,11 +45,11 @@ const Hero = () => {
             {/* CTA */}
             <div className="flex flex-wrap gap-4">
               <Button size="lg" className="bg-foreground text-background hover:bg-foreground/90 group">
-                Bắt đầu Obfuscate
+                Talk to an Expert
                 <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Button>
               <Button size="lg" variant="outline" className="gradient-border">
-                Xem hướng dẫn
+                View Documentation
               </Button>
             </div>
           </div>
@@ -62,8 +60,6 @@ const Hero = () => {
           </div>
         </div>
       </div>
-    </section>
-  );
+    </section>;
 };
-
 export default Hero;
