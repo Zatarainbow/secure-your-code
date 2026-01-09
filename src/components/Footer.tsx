@@ -1,26 +1,25 @@
-const footerLinks = {
-  Products: ["PCI Compliance", "Network Tokens", "3D Secure", "Card Issuing", "BIN Lookup"],
-  Solutions: ["Multi-PSP", "Card Issuing", "Wallet Management", "Enterprise"],
-  Resources: ["Documentation", "API Reference", "Blog", "Changelog"],
-  Company: ["About", "Careers", "Customers", "Contact"]
-};
 const Footer = () => {
-  return <footer className="border-t border-border/50 py-16">
-      <div className="container mx-auto px-4">
-        
-
-        {/* Bottom bar */}
-        <div className="mt-16 pt-8 border-t border-border/50 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-muted-foreground text-sm">
-            © 2024 Evervault. All rights reserved.
+  return (
+    <footer className="border-t border-border/50 py-8 md:py-12 px-4">
+      <div className="container mx-auto">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 rounded-md bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+              <span className="text-primary-foreground font-bold text-sm">O</span>
+            </div>
+            <span className="font-semibold">Obfuscator</span>
+          </div>
+          <p className="text-muted-foreground text-sm text-center">
+            © 2024 Obfuscator. Bảo vệ mã nguồn của bạn.
           </p>
-          <div className="flex gap-6 text-sm text-muted-foreground">
-            <a href="#" className="hover:text-foreground transition-colors">Privacy</a>
-            <a href="#" className="hover:text-foreground transition-colors">Terms</a>
-            <a href="#" className="hover:text-foreground transition-colors">Security</a>
+          <div className="flex gap-4 text-sm text-muted-foreground">
+            <a href="#" className="hover:text-foreground transition-colors">Điều khoản</a>
+            <a href="#" className="hover:text-foreground transition-colors">Bảo mật</a>
           </div>
         </div>
       </div>
-    </footer>;
+    </footer>
+  );
 };
+
 export default Footer;
