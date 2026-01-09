@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Shield, Lock, Code2 } from "lucide-react";
+import { ArrowRight, Shield, Lock, Code2, Sparkles, Zap } from "lucide-react";
 import MatrixRain from "./MatrixRain";
+import ParticleField from "./ParticleField";
+import GlowingOrb from "./GlowingOrb";
 
 const AnimatedIcon = ({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) => (
   <div 
@@ -17,22 +19,41 @@ const AnimatedIcon = ({ children, delay = 0 }: { children: React.ReactNode; dela
 const Hero = () => {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-32 pb-20">
+      {/* Particle field */}
+      <ParticleField />
+      
       {/* Background effects */}
       <div className="absolute inset-0 animated-gradient" />
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-[128px]" />
-      <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-accent/15 rounded-full blur-[100px]" />
+      
+      {/* Glowing orbs */}
+      <GlowingOrb className="top-20 left-10" size="lg" color="primary" />
+      <GlowingOrb className="bottom-20 right-20" size="xl" color="accent" />
+      <GlowingOrb className="top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" size="xl" color="mixed" />
       
       {/* Matrix rain effect */}
       <MatrixRain />
+      
+      {/* Animated grid lines */}
+      <div className="absolute inset-0 opacity-[0.03]" style={{
+        backgroundImage: `
+          linear-gradient(to right, hsl(270, 100%, 65%) 1px, transparent 1px),
+          linear-gradient(to bottom, hsl(270, 100%, 65%) 1px, transparent 1px)
+        `,
+        backgroundSize: '80px 80px',
+      }} />
 
       <div className="container mx-auto px-4 relative z-20">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Left content */}
           <div className="space-y-8 animate-fadeIn">
             {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border border-border/50 text-sm text-muted-foreground">
-              <span className="w-2 h-2 rounded-full bg-accent animate-pulse" />
-              Công cụ bảo vệ mã nguồn hàng đầu Việt Nam
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border border-border/50 text-sm text-muted-foreground group hover:border-primary/50 transition-colors cursor-default">
+              <Sparkles className="w-4 h-4 text-accent animate-pulse" />
+              <span className="relative">
+                Công cụ bảo vệ mã nguồn hàng đầu Việt Nam
+                <span className="absolute inset-x-0 -bottom-px h-px bg-gradient-to-r from-transparent via-primary to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              </span>
+              <Zap className="w-4 h-4 text-primary animate-pulse" style={{ animationDelay: '500ms' }} />
             </div>
 
             {/* Heading */}
@@ -56,12 +77,16 @@ const Hero = () => {
 
             {/* CTA */}
             <div className="flex flex-wrap gap-4">
-              <Button size="lg" className="bg-foreground text-background hover:bg-foreground/90 group">
-                Bắt đầu Obfuscate
-                <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              <Button size="lg" className="relative bg-foreground text-background hover:bg-foreground/90 group overflow-hidden">
+                <span className="absolute inset-0 bg-gradient-to-r from-primary/20 via-accent/20 to-primary/20 opacity-0 group-hover:opacity-100 transition-opacity animate-shimmer" style={{ backgroundSize: '200% 100%' }} />
+                <span className="relative flex items-center">
+                  Bắt đầu Obfuscate
+                  <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </span>
               </Button>
-              <Button size="lg" variant="outline" className="gradient-border">
-                Xem hướng dẫn
+              <Button size="lg" variant="outline" className="gradient-border group relative overflow-hidden">
+                <span className="absolute inset-0 bg-gradient-to-r from-primary/10 to-accent/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <span className="relative">Xem hướng dẫn</span>
               </Button>
             </div>
           </div>
