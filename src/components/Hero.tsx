@@ -1,19 +1,27 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Shield, Lock, Code2, Sparkles, Zap } from "lucide-react";
+import { motion } from "framer-motion";
 import MatrixRain from "./MatrixRain";
 import ParticleField from "./ParticleField";
 import GlowingOrb from "./GlowingOrb";
 
 const AnimatedIcon = ({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) => (
-  <div 
+  <motion.div 
     className="relative group"
-    style={{ animationDelay: `${delay}ms` }}
+    initial={{ opacity: 0, scale: 0.5 }}
+    animate={{ opacity: 1, scale: 1 }}
+    transition={{ delay: delay / 1000, duration: 0.5, type: "spring" }}
+    whileHover={{ 
+      scale: 1.15,
+      rotate: [0, -5, 5, 0],
+      transition: { duration: 0.3 }
+    }}
   >
     <div className="absolute inset-0 bg-gradient-to-r from-primary/50 to-accent/50 rounded-2xl blur-xl opacity-50 group-hover:opacity-80 transition-opacity animate-pulse" />
-    <div className="relative p-4 rounded-2xl glass border border-border/50 animate-float">
+    <div className="relative p-4 rounded-2xl glass border border-border/50 animate-float group-hover:border-primary/50 transition-colors">
       {children}
     </div>
-  </div>
+  </motion.div>
 );
 
 const Hero = () => {
@@ -45,58 +53,115 @@ const Hero = () => {
       <div className="container mx-auto px-4 relative z-20">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           {/* Left content */}
-          <div className="space-y-8 animate-fadeIn">
+          <motion.div 
+            className="space-y-8"
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+          >
             {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border border-border/50 text-sm text-muted-foreground group hover:border-primary/50 transition-colors cursor-default">
+            <motion.div 
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border border-border/50 text-sm text-muted-foreground group hover:border-primary/50 transition-colors cursor-default"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              whileHover={{ scale: 1.02 }}
+            >
               <Sparkles className="w-4 h-4 text-accent animate-pulse" />
               <span className="relative">
                 Công cụ bảo vệ mã nguồn hàng đầu Việt Nam
                 <span className="absolute inset-x-0 -bottom-px h-px bg-gradient-to-r from-transparent via-primary to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
               </span>
               <Zap className="w-4 h-4 text-primary animate-pulse" style={{ animationDelay: '500ms' }} />
-            </div>
+            </motion.div>
 
             {/* Heading */}
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight">
+            <motion.h1 
+              className="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.6 }}
+            >
               <span className="gradient-text">Obfuscator</span>
               <br />
               <span className="text-foreground">Python & JavaScript</span>
-            </h1>
+            </motion.h1>
 
             {/* Subheading */}
-            <p className="text-xl md:text-2xl text-muted-foreground max-w-xl">
+            <motion.p 
+              className="text-xl md:text-2xl text-muted-foreground max-w-xl"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+            >
               <span className="text-foreground/80 font-medium">Bảo vệ tối đa</span>,{" "}
               <span className="text-foreground/80 font-medium">dễ dàng</span> sử dụng
-            </p>
+            </motion.p>
 
             {/* Description */}
-            <p className="text-muted-foreground max-w-lg leading-relaxed">
+            <motion.p 
+              className="text-muted-foreground max-w-lg leading-relaxed"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+            >
               Bảo vệ mã nguồn Python và JavaScript của bạn khỏi việc sao chép trái phép. 
               Mã hóa, làm rối và bảo mật code một cách chuyên nghiệp.
-            </p>
+            </motion.p>
 
             {/* CTA */}
-            <div className="flex flex-wrap gap-4">
-              <Button size="lg" className="relative bg-foreground text-background hover:bg-foreground/90 group overflow-hidden">
-                <span className="absolute inset-0 bg-gradient-to-r from-primary/20 via-accent/20 to-primary/20 opacity-0 group-hover:opacity-100 transition-opacity animate-shimmer" style={{ backgroundSize: '200% 100%' }} />
-                <span className="relative flex items-center">
-                  Bắt đầu Obfuscate
-                  <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </span>
-              </Button>
-              <Button size="lg" variant="outline" className="gradient-border group relative overflow-hidden">
-                <span className="absolute inset-0 bg-gradient-to-r from-primary/10 to-accent/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                <span className="relative">Xem hướng dẫn</span>
-              </Button>
-            </div>
-          </div>
+            <motion.div 
+              className="flex flex-wrap gap-4"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
+            >
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Button size="lg" className="relative bg-foreground text-background hover:bg-foreground/90 group overflow-hidden">
+                  <motion.span 
+                    className="absolute inset-0 bg-gradient-to-r from-primary/20 via-accent/20 to-primary/20"
+                    animate={{ x: ["-100%", "100%"] }}
+                    transition={{ duration: 2, repeat: Infinity, repeatDelay: 1 }}
+                  />
+                  <span className="relative flex items-center">
+                    Bắt đầu Obfuscate
+                    <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </span>
+                </Button>
+              </motion.div>
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Button size="lg" variant="outline" className="gradient-border group relative overflow-hidden">
+                  <span className="absolute inset-0 bg-gradient-to-r from-primary/10 to-accent/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <span className="relative">Xem hướng dẫn</span>
+                </Button>
+              </motion.div>
+            </motion.div>
+          </motion.div>
 
           {/* Right content - Animated Icons */}
-          <div className="relative flex justify-center lg:justify-end">
+          <motion.div 
+            className="relative flex justify-center lg:justify-end"
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+          >
             <div className="relative w-80 h-80 md:w-96 md:h-96">
               {/* Central glow */}
               <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-32 h-32 bg-gradient-to-r from-primary to-accent rounded-full blur-[60px] animate-pulse" />
+                <motion.div 
+                  className="w-32 h-32 bg-gradient-to-r from-primary to-accent rounded-full blur-[60px]"
+                  animate={{ 
+                    scale: [1, 1.2, 1],
+                    opacity: [0.5, 0.8, 0.5]
+                  }}
+                  transition={{ duration: 3, repeat: Infinity }}
+                />
               </div>
               
               {/* Python Icon */}
@@ -140,15 +205,19 @@ const Hero = () => {
 
               {/* Code Icon - Center */}
               <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-                <div className="relative">
+                <motion.div 
+                  className="relative"
+                  whileHover={{ scale: 1.1, rotate: 5 }}
+                  transition={{ type: "spring", stiffness: 300 }}
+                >
                   <div className="absolute inset-0 bg-gradient-to-r from-primary to-accent rounded-3xl blur-2xl opacity-60 animate-glow" />
-                  <div className="relative p-6 rounded-3xl glass border border-border/50">
-                    <Code2 className="w-16 h-16 text-foreground animate-pulse" />
+                  <div className="relative p-6 rounded-3xl glass border border-border/50 hover:border-primary/50 transition-colors">
+                    <Code2 className="w-16 h-16 text-foreground" />
                   </div>
-                </div>
+                </motion.div>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>
