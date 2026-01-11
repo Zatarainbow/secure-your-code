@@ -70,8 +70,8 @@ const CodeComparison = () => {
               </div>
               
               {/* Code content */}
-              <div className="p-6 overflow-auto max-h-[400px]">
-                <pre className="text-sm md:text-base font-mono text-red-300/90 whitespace-pre-wrap leading-relaxed">
+              <div className="p-6 overflow-auto max-h-[400px] code-block">
+                <pre className="text-sm md:text-base text-red-300/90 whitespace-pre-wrap leading-relaxed" style={{ fontFamily: "'JetBrains Mono', 'Fira Code', monospace" }}>
                   {beforeCode}
                 </pre>
               </div>
@@ -119,8 +119,8 @@ const CodeComparison = () => {
               </div>
               
               {/* Code content */}
-              <div className="p-6 overflow-auto max-h-[400px]">
-                <pre className="text-sm md:text-base font-mono text-green-300/90 whitespace-pre-wrap leading-relaxed break-all">
+              <div className="p-6 overflow-auto max-h-[400px] code-block">
+                <pre className="text-sm md:text-base text-green-300/90 whitespace-pre-wrap leading-relaxed break-all" style={{ fontFamily: "'JetBrains Mono', 'Fira Code', monospace" }}>
                   {afterCode}
                 </pre>
               </div>
