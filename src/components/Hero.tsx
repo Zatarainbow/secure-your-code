@@ -75,16 +75,21 @@ const Hero = () => {
               <Zap className="w-4 h-4 text-primary animate-pulse" style={{ animationDelay: '500ms' }} />
             </motion.div>
 
-            {/* Heading */}
+            {/* Heading with Glitch effect */}
             <motion.h1 
               className="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.6 }}
             >
-              <span className="gradient-text">Obfuscator</span>
+              <span 
+                className="glitch gradient-text" 
+                data-text="Obfuscator"
+              >
+                Obfuscator
+              </span>
               <br />
-              <span className="text-foreground">Python & JavaScript</span>
+              <span className="text-foreground font-extrabold">Python & JavaScript</span>
             </motion.h1>
 
             {/* Subheading */}

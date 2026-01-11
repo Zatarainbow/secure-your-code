@@ -1,91 +1,93 @@
-import { useEffect, useState, useMemo } from "react";
-
-interface MatrixChar {
-  char: string;
-  opacity: number;
-  color: "purple" | "cyan" | "white";
-}
+import { useEffect, useRef } from "react";
 
 const MatrixRain = () => {
-  const [chars, setChars] = useState<MatrixChar[][]>([]);
-  
-  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&*+=<>?";
-  const rows = 15;
-  const cols = 50;
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    const generateMatrix = () => {
-      const matrix: MatrixChar[][] = [];
-      for (let i = 0; i < rows; i++) {
-        const row: MatrixChar[] = [];
-        for (let j = 0; j < cols; j++) {
-          const randomColor = Math.random();
-          row.push({
-            char: characters[Math.floor(Math.random() * characters.length)],
-            opacity: Math.random() * 0.8 + 0.2,
-            color: randomColor < 0.1 ? "purple" : randomColor < 0.15 ? "cyan" : "white",
-          });
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    // Set canvas size
+    const resizeCanvas = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+    resizeCanvas();
+
+    // Matrix characters - mix of code-like symbols
+    const chars = "アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ@#$%^&*(){}[]<>?/\\|~`+=";
+    const charArray = chars.split("");
+
+    const fontSize = 14;
+    const columns = Math.floor(canvas.width / fontSize);
+    
+    // Array to track Y position of each column
+    const drops: number[] = Array(columns).fill(1);
+    
+    // Color variations
+    const colors = [
+      "rgba(168, 85, 247, ",  // Primary purple
+      "rgba(6, 182, 212, ",   // Accent cyan
+      "rgba(255, 255, 255, ", // White
+    ];
+
+    const draw = () => {
+      // Fade effect - semi-transparent black overlay
+      ctx.fillStyle = "rgba(5, 5, 10, 0.05)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.font = `${fontSize}px 'JetBrains Mono', 'Fira Code', monospace`;
+
+      for (let i = 0; i < drops.length; i++) {
+        // Random character
+        const text = charArray[Math.floor(Math.random() * charArray.length)];
+        
+        // Mostly purple, sometimes cyan or white
+        const colorChoice = Math.random();
+        let color: string;
+        let alpha: number;
+        
+        if (colorChoice < 0.85) {
+          color = colors[0]; // Purple
+          alpha = Math.random() * 0.5 + 0.3;
+        } else if (colorChoice < 0.95) {
+          color = colors[1]; // Cyan
+          alpha = Math.random() * 0.7 + 0.3;
+        } else {
+          color = colors[2]; // White (brightest, like leading drop)
+          alpha = 1;
         }
-        matrix.push(row);
+
+        ctx.fillStyle = color + alpha + ")";
+        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+        // Randomly reset drop to top
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+          drops[i] = 0;
+        }
+        drops[i]++;
       }
-      return matrix;
     };
 
-    setChars(generateMatrix());
+    const interval = setInterval(draw, 50);
 
-    const interval = setInterval(() => {
-      setChars((prev) =>
-        prev.map((row) =>
-          row.map((cell) => ({
-            ...cell,
-            char: Math.random() > 0.9 
-              ? characters[Math.floor(Math.random() * characters.length)] 
-              : cell.char,
-            opacity: Math.random() > 0.8 
-              ? Math.random() * 0.8 + 0.2 
-              : cell.opacity,
-          }))
-        )
-      );
-    }, 100);
+    window.addEventListener("resize", resizeCanvas);
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("resize", resizeCanvas);
+    };
   }, []);
 
-  const getColorClass = (color: "purple" | "cyan" | "white") => {
-    switch (color) {
-      case "purple":
-        return "text-primary";
-      case "cyan":
-        return "text-accent";
-      default:
-        return "text-foreground";
-    }
-  };
-
   return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none select-none" aria-hidden="true">
-      {/* Gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-background via-transparent to-background z-10" />
-      <div className="absolute inset-0 bg-gradient-to-r from-background via-transparent to-background z-10" />
-      
-      {/* Matrix characters */}
-      <div className="absolute right-0 top-1/2 -translate-y-1/2 font-mono text-xs leading-tight opacity-60">
-        {chars.map((row, i) => (
-          <div key={i} className="flex whitespace-nowrap">
-            {row.map((cell, j) => (
-              <span
-                key={j}
-                className={`w-4 inline-block text-center transition-opacity duration-300 ${getColorClass(cell.color)}`}
-                style={{ opacity: cell.opacity }}
-              >
-                {cell.char}
-              </span>
-            ))}
-          </div>
-        ))}
-      </div>
-    </div>
+    <canvas
+      ref={canvasRef}
+      className="fixed inset-0 pointer-events-none z-0 opacity-30"
+      aria-hidden="true"
+    />
   );
 };
 
