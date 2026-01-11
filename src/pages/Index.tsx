@@ -12,10 +12,7 @@ const Index = () => {
 
   return (
     <>
-      <LoadingScreen 
-        onComplete={() => setIsLoading(false)} 
-        duration={3000} 
-      />
+      <LoadingScreen onComplete={() => setIsLoading(false)} />
       {!isLoading && (
         <div className="min-h-screen bg-background noise animate-fade-in">
           <Navbar />
