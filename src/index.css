@@ -249,7 +249,24 @@
   }
 
   /* Slow spin for rotating borders */
-  @keyframes spin-slow {
+@keyframes scanline {
+  0% { top: -2px; }
+  100% { top: 100%; }
+}
+
+.glitch-loading {
+  animation: glitch-loading 0.3s ease-in-out;
+}
+
+@keyframes glitch-loading {
+  0%, 100% { transform: translate(0); }
+  20% { transform: translate(-2px, 2px); }
+  40% { transform: translate(-2px, -2px); }
+  60% { transform: translate(2px, 2px); }
+  80% { transform: translate(2px, -2px); }
+}
+
+@keyframes spin-slow {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
   }
