@@ -1,3 +1,4 @@
+import { memo, useCallback } from "react";
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -8,13 +9,43 @@ const TERMINAL_LINES = [
   '> Encrypting variable names...',
   '> Bypassing security...',
   '> System ready.',
-];
+] as const;
 
 interface LoadingScreenProps {
   onComplete?: () => void;
 }
 
-const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
+// Memoized terminal line component
+const TerminalLine = memo(({ 
+  line, 
+  showCursor, 
+  isTyping 
+}: { 
+  line: string; 
+  showCursor: boolean; 
+  isTyping: boolean;
+}) => (
+  <motion.div
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    className="text-green-500 text-sm sm:text-base md:text-lg"
+    style={{
+      textShadow: '0 0 10px rgba(34, 197, 94, 0.5)',
+    }}
+  >
+    {line}
+    {isTyping && (
+      <span 
+        className={`inline-block w-2.5 h-5 ml-0.5 bg-green-500 align-middle ${showCursor ? 'opacity-100' : 'opacity-0'}`}
+        style={{ transform: 'translateY(-1px)' }}
+      />
+    )}
+  </motion.div>
+));
+
+TerminalLine.displayName = "TerminalLine";
+
+const LoadingScreen = memo(({ onComplete }: LoadingScreenProps) => {
   const [displayedLines, setDisplayedLines] = useState<string[]>([]);
   const [currentLineIndex, setCurrentLineIndex] = useState(0);
   const [currentCharIndex, setCurrentCharIndex] = useState(0);
@@ -29,23 +60,23 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
     return () => clearInterval(cursorInterval);
   }, []);
 
-  // Typing effect
+  // Typing effect - memoized callback for handling completion
+  const handleComplete = useCallback(() => {
+    setIsComplete(true);
+    setTimeout(() => {
+      onComplete?.();
+    }, 600);
+  }, [onComplete]);
+
   useEffect(() => {
     if (currentLineIndex >= TERMINAL_LINES.length) {
-      // All lines typed, wait then complete
-      const timeout = setTimeout(() => {
-        setIsComplete(true);
-        setTimeout(() => {
-          onComplete?.();
-        }, 600);
-      }, 800);
+      const timeout = setTimeout(handleComplete, 800);
       return () => clearTimeout(timeout);
     }
 
     const currentLine = TERMINAL_LINES[currentLineIndex];
     
     if (currentCharIndex < currentLine.length) {
-      // Type next character
       const timeout = setTimeout(() => {
         setDisplayedLines(prev => {
           const newLines = [...prev];
@@ -57,17 +88,16 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
           return newLines;
         });
         setCurrentCharIndex(prev => prev + 1);
-      }, 25 + Math.random() * 35); // Random typing speed for realism
+      }, 25 + Math.random() * 35);
       return () => clearTimeout(timeout);
     } else {
-      // Line complete, move to next line after a pause
       const timeout = setTimeout(() => {
         setCurrentLineIndex(prev => prev + 1);
         setCurrentCharIndex(0);
       }, 400);
       return () => clearTimeout(timeout);
     }
-  }, [currentLineIndex, currentCharIndex, onComplete]);
+  }, [currentLineIndex, currentCharIndex, handleComplete]);
 
   return (
     <AnimatePresence>
@@ -107,23 +137,12 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
               style={{ fontFamily: "'JetBrains Mono', 'Fira Code', monospace" }}
             >
               {displayedLines.map((line, index) => (
-                <motion.div
+                <TerminalLine
                   key={index}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="text-green-500 text-sm sm:text-base md:text-lg"
-                  style={{
-                    textShadow: '0 0 10px rgba(34, 197, 94, 0.5)',
-                  }}
-                >
-                  {line}
-                  {index === currentLineIndex && currentCharIndex < TERMINAL_LINES[currentLineIndex]?.length && (
-                    <span 
-                      className={`inline-block w-2.5 h-5 ml-0.5 bg-green-500 align-middle ${showCursor ? 'opacity-100' : 'opacity-0'}`}
-                      style={{ transform: 'translateY(-1px)' }}
-                    />
-                  )}
-                </motion.div>
+                  line={line}
+                  showCursor={showCursor}
+                  isTyping={index === currentLineIndex && currentCharIndex < TERMINAL_LINES[currentLineIndex]?.length}
+                />
               ))}
               
               {/* Cursor on new line when waiting */}
@@ -160,6 +179,8 @@ const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
       ) : null}
     </AnimatePresence>
   );
-};
+});
+
+LoadingScreen.displayName = "LoadingScreen";
 
 export default LoadingScreen;

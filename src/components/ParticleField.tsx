@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, memo, useCallback } from "react";
 
 interface Particle {
   x: number;
@@ -6,155 +6,193 @@ interface Particle {
   vx: number;
   vy: number;
   size: number;
-  color: string;
+  colorIndex: number;
   alpha: number;
 }
 
-const ParticleField = () => {
+// Pre-computed colors outside component for better performance
+const COLORS = [
+  "rgba(168, 85, 247, ", // primary purple
+  "rgba(6, 182, 212, ",   // accent cyan
+  "rgba(255, 255, 255, ", // white
+];
+
+const MAX_PARTICLES = 120;
+const CONNECTION_DISTANCE = 150;
+const MOUSE_INTERACTION_DISTANCE = 150;
+
+const ParticleField = memo(() => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const particlesRef = useRef<Particle[]>([]);
   const mouseRef = useRef({ x: 0, y: 0 });
   const animationFrameRef = useRef<number>();
+  const dimensionsRef = useRef({ width: 0, height: 0 });
 
-  useEffect(() => {
+  const createParticles = useCallback((width: number, height: number) => {
+    const particleCount = Math.min(
+      Math.floor((width * height) / 10000),
+      MAX_PARTICLES
+    );
+
+    const particles: Particle[] = [];
+    for (let i = 0; i < particleCount; i++) {
+      particles.push({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        vx: (Math.random() - 0.5) * 0.5,
+        vy: (Math.random() - 0.5) * 0.5,
+        size: Math.random() * 2.5 + 1,
+        colorIndex: (Math.random() * COLORS.length) | 0,
+        alpha: Math.random() * 0.5 + 0.2,
+      });
+    }
+    return particles;
+  }, []);
+
+  const resizeCanvas = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    dimensionsRef.current = { width: canvas.width, height: canvas.height };
+    particlesRef.current = createParticles(canvas.width, canvas.height);
+  }, [createParticles]);
+
+  const animate = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const resizeCanvas = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      // Reinitialize particles on resize
-      particlesRef.current = createParticles();
-    };
+    const { width, height } = dimensionsRef.current;
+    const particles = particlesRef.current;
+    const mouse = mouseRef.current;
 
-    const colors = [
-      "rgba(168, 85, 247, ", // primary purple
-      "rgba(6, 182, 212, ",   // accent cyan
-      "rgba(255, 255, 255, ", // white
-    ];
+    ctx.clearRect(0, 0, width, height);
 
-    const createParticles = () => {
-      const particles: Particle[] = [];
-      const particleCount = Math.floor((canvas.width * canvas.height) / 10000);
+    // Draw connections - only check pairs that are close enough (optimization)
+    const particleCount = particles.length;
+    const connectionDistSq = CONNECTION_DISTANCE * CONNECTION_DISTANCE;
 
-      for (let i = 0; i < Math.min(particleCount, 120); i++) {
-        particles.push({
-          x: Math.random() * canvas.width,
-          y: Math.random() * canvas.height,
-          vx: (Math.random() - 0.5) * 0.5,
-          vy: (Math.random() - 0.5) * 0.5,
-          size: Math.random() * 2.5 + 1,
-          color: colors[Math.floor(Math.random() * colors.length)],
-          alpha: Math.random() * 0.5 + 0.2,
-        });
-      }
-      return particles;
-    };
+    for (let i = 0; i < particleCount; i++) {
+      const pi = particles[i];
+      for (let j = i + 1; j < particleCount; j++) {
+        const pj = particles[j];
+        const dx = pi.x - pj.x;
+        const dy = pi.y - pj.y;
+        const distSq = dx * dx + dy * dy;
 
-    const drawConnections = (particles: Particle[]) => {
-      const maxDistance = 150;
-
-      for (let i = 0; i < particles.length; i++) {
-        for (let j = i + 1; j < particles.length; j++) {
-          const dx = particles[i].x - particles[j].x;
-          const dy = particles[i].y - particles[j].y;
-          const distance = Math.sqrt(dx * dx + dy * dy);
-
-          if (distance < maxDistance) {
-            const opacity = (1 - distance / maxDistance) * 0.25;
-            ctx.beginPath();
-            ctx.strokeStyle = `rgba(168, 85, 247, ${opacity})`;
-            ctx.lineWidth = 0.5;
-            ctx.moveTo(particles[i].x, particles[i].y);
-            ctx.lineTo(particles[j].x, particles[j].y);
-            ctx.stroke();
-          }
+        if (distSq < connectionDistSq) {
+          const dist = Math.sqrt(distSq);
+          const opacity = (1 - dist / CONNECTION_DISTANCE) * 0.25;
+          ctx.beginPath();
+          ctx.strokeStyle = `rgba(168, 85, 247, ${opacity})`;
+          ctx.lineWidth = 0.5;
+          ctx.moveTo(pi.x, pi.y);
+          ctx.lineTo(pj.x, pj.y);
+          ctx.stroke();
         }
       }
-    };
+    }
 
-    const animate = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // Update and draw particles
+    const mouseDistSq = MOUSE_INTERACTION_DISTANCE * MOUSE_INTERACTION_DISTANCE;
 
-      const particles = particlesRef.current;
+    for (let i = 0; i < particleCount; i++) {
+      const particle = particles[i];
 
-      // Draw connections (CFG-like lines representing data flow)
-      drawConnections(particles);
+      // Mouse interaction - particles repel from cursor
+      const dx = mouse.x - particle.x;
+      const dy = mouse.y - particle.y;
+      const distSq = dx * dx + dy * dy;
 
-      particles.forEach((particle) => {
-        // Mouse interaction - particles repel from cursor
-        const dx = mouseRef.current.x - particle.x;
-        const dy = mouseRef.current.y - particle.y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
+      if (distSq < mouseDistSq && distSq > 0) {
+        const dist = Math.sqrt(distSq);
+        const force = (MOUSE_INTERACTION_DISTANCE - dist) / MOUSE_INTERACTION_DISTANCE;
+        particle.vx -= (dx / dist) * force * 0.02;
+        particle.vy -= (dy / dist) * force * 0.02;
+      }
 
-        if (distance < 150) {
-          const force = (150 - distance) / 150;
-          particle.vx -= (dx / distance) * force * 0.02;
-          particle.vy -= (dy / distance) * force * 0.02;
-        }
+      // Apply friction
+      particle.vx *= 0.99;
+      particle.vy *= 0.99;
 
-        // Apply friction
-        particle.vx *= 0.99;
-        particle.vy *= 0.99;
+      // Update position
+      particle.x += particle.vx;
+      particle.y += particle.vy;
 
-        // Update position
-        particle.x += particle.vx;
-        particle.y += particle.vy;
+      // Bounce off edges
+      if (particle.x < 0 || particle.x > width) particle.vx *= -1;
+      if (particle.y < 0 || particle.y > height) particle.vy *= -1;
 
-        // Bounce off edges
-        if (particle.x < 0 || particle.x > canvas.width) particle.vx *= -1;
-        if (particle.y < 0 || particle.y > canvas.height) particle.vy *= -1;
+      // Keep particles in bounds
+      particle.x = Math.max(0, Math.min(width, particle.x));
+      particle.y = Math.max(0, Math.min(height, particle.y));
 
-        // Keep particles in bounds
-        particle.x = Math.max(0, Math.min(canvas.width, particle.x));
-        particle.y = Math.max(0, Math.min(canvas.height, particle.y));
+      const color = COLORS[particle.colorIndex];
 
-        // Draw particle with glow
-        ctx.beginPath();
-        ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
-        ctx.fillStyle = particle.color + particle.alpha + ")";
-        ctx.fill();
+      // Draw particle with glow
+      ctx.beginPath();
+      ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+      ctx.fillStyle = color + particle.alpha + ")";
+      ctx.fill();
 
-        // Add glow effect
-        ctx.beginPath();
-        ctx.arc(particle.x, particle.y, particle.size * 2.5, 0, Math.PI * 2);
-        ctx.fillStyle = particle.color + (particle.alpha * 0.2) + ")";
-        ctx.fill();
-      });
+      // Add glow effect
+      ctx.beginPath();
+      ctx.arc(particle.x, particle.y, particle.size * 2.5, 0, Math.PI * 2);
+      ctx.fillStyle = color + (particle.alpha * 0.2) + ")";
+      ctx.fill();
+    }
 
-      animationFrameRef.current = requestAnimationFrame(animate);
-    };
+    animationFrameRef.current = requestAnimationFrame(animate);
+  }, []);
 
-    const handleMouseMove = (e: MouseEvent) => {
-      mouseRef.current = { x: e.clientX, y: e.clientY };
-    };
-
+  useEffect(() => {
     resizeCanvas();
-    particlesRef.current = createParticles();
-    animate();
+    animationFrameRef.current = requestAnimationFrame(animate);
 
-    window.addEventListener("resize", resizeCanvas);
-    window.addEventListener("mousemove", handleMouseMove);
+    // Debounced resize handler
+    let resizeTimeout: number;
+    const handleResize = () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = window.setTimeout(resizeCanvas, 100);
+    };
+
+    // Throttled mouse move handler
+    let lastMouseUpdate = 0;
+    const handleMouseMove = (e: MouseEvent) => {
+      const now = Date.now();
+      if (now - lastMouseUpdate > 16) { // ~60fps throttle
+        mouseRef.current = { x: e.clientX, y: e.clientY };
+        lastMouseUpdate = now;
+      }
+    };
+
+    window.addEventListener("resize", handleResize, { passive: true });
+    window.addEventListener("mousemove", handleMouseMove, { passive: true });
 
     return () => {
-      window.removeEventListener("resize", resizeCanvas);
+      window.removeEventListener("resize", handleResize);
       window.removeEventListener("mousemove", handleMouseMove);
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
       }
+      clearTimeout(resizeTimeout);
     };
-  }, []);
+  }, [animate, resizeCanvas]);
 
   return (
     <canvas
       ref={canvasRef}
       className="fixed inset-0 pointer-events-none z-0"
       style={{ background: "transparent", opacity: 0.7 }}
+      aria-hidden="true"
     />
   );
-};
+});
+
+ParticleField.displayName = "ParticleField";
 
 export default ParticleField;
