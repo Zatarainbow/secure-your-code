@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { motion } from "framer-motion";
 import { Code, Shield, ArrowRight } from "lucide-react";
 import ScrollReveal from "./ScrollReveal";
@@ -32,7 +33,77 @@ fbf3['push'](_0x52fbf3[
 fbf3['shift']());}}}(_0x4a
 2f,0x7e3a2));`;
 
-const CodeComparison = () => {
+// Memoized code block component
+const CodeBlock = memo(({ 
+  code, 
+  variant 
+}: { 
+  code: string; 
+  variant: 'before' | 'after';
+}) => {
+  const isAfter = variant === 'after';
+  const colorClasses = isAfter ? {
+    border: 'border-green-500/30',
+    header: 'bg-green-500/10 border-green-500/20',
+    iconColor: 'text-green-400',
+    textColor: 'text-green-300/90',
+    badge: 'bg-green-500/20 border-green-500/30 text-green-400',
+  } : {
+    border: 'border-red-500/30',
+    header: 'bg-red-500/10 border-red-500/20',
+    iconColor: 'text-red-400',
+    textColor: 'text-red-300/90',
+    badge: 'bg-red-500/20 border-red-500/30 text-red-400',
+  };
+
+  const Icon = isAfter ? Shield : Code;
+  const title = isAfter ? 'Đã Obfuscate' : 'Chưa Obfuscate';
+  const badgeText = isAfter ? '✓ Được bảo vệ' : '⚠️ Dễ bị sao chép';
+
+  return (
+    <motion.div
+      className={`relative rounded-2xl overflow-hidden border ${colorClasses.border} bg-gradient-to-br from-background to-card h-full`}
+      whileHover={{ scale: 1.02, y: -5 }}
+      transition={{ type: "spring", stiffness: 300, damping: 20 }}
+    >
+      {/* Header */}
+      <div className={`flex items-center gap-2 px-4 py-3 ${colorClasses.header} border-b`}>
+        <Icon className={`w-5 h-5 ${colorClasses.iconColor}`} />
+        <span className={`font-semibold ${colorClasses.iconColor}`}>{title}</span>
+        <div className="ml-auto flex gap-1.5">
+          <div className="w-3 h-3 rounded-full bg-red-500/50" />
+          <div className="w-3 h-3 rounded-full bg-yellow-500/50" />
+          <div className="w-3 h-3 rounded-full bg-green-500/50" />
+        </div>
+      </div>
+      
+      {/* Code content */}
+      <div className="p-6 overflow-auto max-h-[400px] code-block">
+        <pre 
+          className={`text-sm md:text-base ${colorClasses.textColor} whitespace-pre-wrap leading-relaxed ${isAfter ? 'break-all' : ''}`} 
+          style={{ fontFamily: "'JetBrains Mono', 'Fira Code', monospace" }}
+        >
+          {code}
+        </pre>
+      </div>
+
+      {/* Badge */}
+      <div className="absolute bottom-4 right-4">
+        <motion.div
+          className={`px-3 py-1.5 rounded-full ${colorClasses.badge} text-xs font-medium`}
+          animate={{ scale: [1, 1.05, 1] }}
+          transition={{ duration: 2, repeat: Infinity, delay: isAfter ? 0.5 : 0 }}
+        >
+          {badgeText}
+        </motion.div>
+      </div>
+    </motion.div>
+  );
+});
+
+CodeBlock.displayName = "CodeBlock";
+
+const CodeComparison = memo(() => {
   return (
     <section className="py-24 relative overflow-hidden">
       {/* Background effects */}
@@ -53,40 +124,7 @@ const CodeComparison = () => {
         <div className="grid md:grid-cols-2 gap-6 max-w-6xl mx-auto">
           {/* Before Code */}
           <ScrollReveal direction="left" delay={0.1}>
-            <motion.div
-              className="relative rounded-2xl overflow-hidden border border-red-500/30 bg-gradient-to-br from-background to-card h-full"
-              whileHover={{ scale: 1.02, y: -5 }}
-              transition={{ type: "spring", stiffness: 300, damping: 20 }}
-            >
-              {/* Header */}
-              <div className="flex items-center gap-2 px-4 py-3 bg-red-500/10 border-b border-red-500/20">
-                <Code className="w-5 h-5 text-red-400" />
-                <span className="font-semibold text-red-400">Chưa Obfuscate</span>
-                <div className="ml-auto flex gap-1.5">
-                  <div className="w-3 h-3 rounded-full bg-red-500/50" />
-                  <div className="w-3 h-3 rounded-full bg-yellow-500/50" />
-                  <div className="w-3 h-3 rounded-full bg-green-500/50" />
-                </div>
-              </div>
-              
-              {/* Code content */}
-              <div className="p-6 overflow-auto max-h-[400px] code-block">
-                <pre className="text-sm md:text-base text-red-300/90 whitespace-pre-wrap leading-relaxed" style={{ fontFamily: "'JetBrains Mono', 'Fira Code', monospace" }}>
-                  {beforeCode}
-                </pre>
-              </div>
-
-              {/* Warning badge */}
-              <div className="absolute bottom-4 right-4">
-                <motion.div
-                  className="px-3 py-1.5 rounded-full bg-red-500/20 border border-red-500/30 text-xs text-red-400 font-medium"
-                  animate={{ scale: [1, 1.05, 1] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                >
-                  ⚠️ Dễ bị sao chép
-                </motion.div>
-              </div>
-            </motion.div>
+            <CodeBlock code={beforeCode} variant="before" />
           </ScrollReveal>
 
           {/* Arrow in the middle for desktop */}
@@ -102,40 +140,7 @@ const CodeComparison = () => {
 
           {/* After Code */}
           <ScrollReveal direction="right" delay={0.2}>
-            <motion.div
-              className="relative rounded-2xl overflow-hidden border border-green-500/30 bg-gradient-to-br from-background to-card h-full"
-              whileHover={{ scale: 1.02, y: -5 }}
-              transition={{ type: "spring", stiffness: 300, damping: 20 }}
-            >
-              {/* Header */}
-              <div className="flex items-center gap-2 px-4 py-3 bg-green-500/10 border-b border-green-500/20">
-                <Shield className="w-5 h-5 text-green-400" />
-                <span className="font-semibold text-green-400">Đã Obfuscate</span>
-                <div className="ml-auto flex gap-1.5">
-                  <div className="w-3 h-3 rounded-full bg-red-500/50" />
-                  <div className="w-3 h-3 rounded-full bg-yellow-500/50" />
-                  <div className="w-3 h-3 rounded-full bg-green-500/50" />
-                </div>
-              </div>
-              
-              {/* Code content */}
-              <div className="p-6 overflow-auto max-h-[400px] code-block">
-                <pre className="text-sm md:text-base text-green-300/90 whitespace-pre-wrap leading-relaxed break-all" style={{ fontFamily: "'JetBrains Mono', 'Fira Code', monospace" }}>
-                  {afterCode}
-                </pre>
-              </div>
-
-              {/* Success badge */}
-              <div className="absolute bottom-4 right-4">
-                <motion.div
-                  className="px-3 py-1.5 rounded-full bg-green-500/20 border border-green-500/30 text-xs text-green-400 font-medium"
-                  animate={{ scale: [1, 1.05, 1] }}
-                  transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
-                >
-                  ✓ Được bảo vệ
-                </motion.div>
-              </div>
-            </motion.div>
+            <CodeBlock code={afterCode} variant="after" />
           </ScrollReveal>
         </div>
 
@@ -152,6 +157,8 @@ const CodeComparison = () => {
       </div>
     </section>
   );
-};
+});
+
+CodeComparison.displayName = "CodeComparison";
 
 export default CodeComparison;

@@ -1,4 +1,6 @@
-const GlowingOrb = ({ 
+import { memo } from "react";
+
+const GlowingOrb = memo(({ 
   className = "", 
   size = "lg",
   color = "primary" 
@@ -40,6 +42,8 @@ const GlowingOrb = ({
       />
     </div>
   );
-};
+});
+
+GlowingOrb.displayName = "GlowingOrb";
 
 export default GlowingOrb;
